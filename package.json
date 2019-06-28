@@ -1,0 +1,19 @@
+{
+  "name": "greenhouse-dashboard",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/supermomme/greenhouse-dashboard.git"
+  },
+  "author": "Momme Jürgensen <momme+npm@juergensen.me>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/supermomme/greenhouse-dashboard/issues"
+  },
+  "homepage": "https://github.com/supermomme/greenhouse-dashboard#readme"
+}
