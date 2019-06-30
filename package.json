@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "docker-compose build && docker-compose up",
+    "postinstall": "concurrently \"cd api && npm install\" \"cd client && npm install\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/supermomme/greenhouse-dashboard/issues"
   },
-  "homepage": "https://github.com/supermomme/greenhouse-dashboard#readme"
+  "homepage": "https://github.com/supermomme/greenhouse-dashboard#readme",
+  "devDependencies": {
+    "concurrently": "^4.1.0"
+  }
 }
