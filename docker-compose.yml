@@ -1,35 +1,37 @@
-version: "3"
+version: "3.6"
 services:
-  client:
-    build:
-      context: ./client
-      dockerfile: ./Dockerfile
-    tty: true
-    environment:
-      - UV_THREADPOOL_SIZE=2
-    ports:
-      - 80:80
+  grafana:
+    image: grafana/grafana
     volumes:
-      - ./client/src:/app/src
-  api:
-    build:
-      context: ./api
-      dockerfile: ./Dockerfile
-    command: npm run start
+      - grafana-provisioning:/etc/grafana/provisioning/
+    environment:
+      - VIRTUAL_HOST=0.0.0.0
+    ports:
+      - "3000:3000"
     depends_on:
-      - mongodb
+      - influxdb
+    restart: always
+
+  influxdb:
+    image: influxdb:1.7
+    container_name: influxdb
     ports:
-      - 3030:3030
-    volumes:
-      - ./api/public:/app/public
-      - ./api/src:/app/src
+      - 8086:8086
     environment:
-      - NODE_ENV=production
-  mongodb:
-    image: mongo:3.6.7
-    ports:
-      - 27017:27017
+      INFLUXDB_DB: greenhouse_db
+      INFLUXDB_ADMIN_USER: admin
+      INFLUXDB_ADMIN_PASSWORD: admin
     volumes:
-       - mongodb-data:/data/db
+      - influxdb-data:/var/lib/influxdb
+    restart: always
+
+  mqttbridge:
+    build: ./mqtt-bridge
+    container_name: mqttbridge
+    depends_on:
+      - influxdb
+    restart: always
+
 volumes:
-  mongodb-data:
+  grafana-provisioning:
+  influxdb-data:

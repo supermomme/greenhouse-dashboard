@@ -1,7 +1,6 @@
-FROM node:11.15.0
+FROM node:10.9.0-alpine
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
 COPY . .
-EXPOSE 8080
-CMD ["npm", "run", "serve"]
+CMD ["npm", "start"]
