@@ -3,7 +3,8 @@ services:
   grafana:
     image: grafana/grafana
     volumes:
-      - grafana-provisioning:/etc/grafana/provisioning/
+      # sudo mkdir -p ./volumes/grafana; chown 472:472 ./volumes/grafana
+      - ./volumes/grafana:/var/lib/grafana
     environment:
       - VIRTUAL_HOST=0.0.0.0
     ports:
@@ -22,7 +23,7 @@ services:
       INFLUXDB_ADMIN_USER: admin
       INFLUXDB_ADMIN_PASSWORD: admin
     volumes:
-      - influxdb-data:/var/lib/influxdb
+      - ./volumes/influxdb-data:/var/lib/influxdb
     restart: always
 
   mqttbridge:
@@ -31,7 +32,3 @@ services:
     depends_on:
       - influxdb
     restart: always
-
-volumes:
-  grafana-provisioning:
-  influxdb-data:

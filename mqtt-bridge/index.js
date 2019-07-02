@@ -16,7 +16,7 @@ const influx = new Influx.InfluxDB({
      fields: {
        topic: Influx.FieldType.STRING,
        message: Influx.FieldType.STRING,
-       value: Influx.FieldType.INTEGER
+       value: Influx.FieldType.FLOAT
      },
      tags: []
    }
@@ -38,8 +38,9 @@ mqtt.on('message', function (topic, message) {
       fields: {
         topic,
         message,
-        value: Number(message)
+        value: parseFloat(message)
       }
     }
   ])
+  .catch((err) => console.log(err))
 })
