@@ -26,6 +26,7 @@ const influx = new Influx.InfluxDB({
 const subscribedTopics = [
   'greenhouse/temperature/+',
   'greenhouse/humidity/+'
+  'greenhouse/moisture/soil/+'
 ]
 
 mqtt.subscribe(subscribedTopics)
