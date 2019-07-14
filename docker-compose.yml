@@ -2,13 +2,19 @@ version: "3.6"
 services:
   grafana:
     image: grafana/grafana
+    container_name: grafana
     volumes:
       # sudo mkdir -p ./volumes/grafana; chown 472:472 ./volumes/grafana
       - ./volumes/grafana:/var/lib/grafana
     environment:
       - VIRTUAL_HOST=0.0.0.0
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_NAME=public
+      - GF_SERVER_DOMAIN=192.168.1.232
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+#      - GF_AUTH_ANONYMOUS_ORG_NAME=public
+      - GF_EXTERNAL_IMAGE_STORAGE_PROVIDER=local
+      - GF_AUTH_PROXY_AUTO_SIGN_UP=false
+      - GF_AUTH_PROXY_ENABLED=true
+
     ports:
       - "3000:3000"
     depends_on:
@@ -33,4 +39,12 @@ services:
     container_name: mqttbridge
     depends_on:
       - influxdb
+    restart: always
+  nginx-proxy:
+    build: ./nginx-proxy
+    container_name: nginx-proxy
+    ports:
+      - "3002:3002"
+    depends_on:
+      - grafana
     restart: always
