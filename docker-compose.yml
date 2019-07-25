@@ -3,12 +3,15 @@ services:
   grafana:
     image: grafana/grafana
     container_name: grafana
+    networks:
+      - grafana
     volumes:
       # sudo mkdir -p ./volumes/grafana; chown 472:472 ./volumes/grafana
       - ./volumes/grafana:/var/lib/grafana
     environment:
       - VIRTUAL_HOST=0.0.0.0
-      - GF_SERVER_DOMAIN=192.168.1.232
+      - GF_SERVER_DOMAIN=grafana.juergensen.me
+      - GF_SERVER_ROOT_URL=http://grafana.juergensen.me/
       - GF_AUTH_ANONYMOUS_ENABLED=false
 #      - GF_AUTH_ANONYMOUS_ORG_NAME=public
       - GF_EXTERNAL_IMAGE_STORAGE_PROVIDER=local
@@ -24,6 +27,8 @@ services:
   influxdb:
     image: influxdb:1.7
     container_name: influxdb
+    networks:
+      - grafana
     ports:
       - 8086:8086
     environment:
@@ -37,14 +42,21 @@ services:
   mqttbridge:
     build: ./mqtt-bridge
     container_name: mqttbridge
+    networks:
+      - grafana
     depends_on:
       - influxdb
     restart: always
   nginx-proxy:
     build: ./nginx-proxy
     container_name: nginx-proxy
+    networks:
+      - grafana
     ports:
       - "3002:3002"
     depends_on:
       - grafana
     restart: always
+
+networks:
+  grafana:
