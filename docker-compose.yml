@@ -4,7 +4,7 @@ services:
     image: grafana/grafana
     container_name: grafana
     networks:
-      - grafana
+      - mqtt
     volumes:
       # sudo mkdir -p ./volumes/grafana; chown 472:472 ./volumes/grafana
       - ./volumes/grafana:/var/lib/grafana
@@ -68,7 +68,7 @@ services:
     build: ./nginx-proxy
     container_name: nginx-proxy
     networks:
-      - grafana
+      - mqtt
     ports:
       - "3002:3002"
     depends_on:
