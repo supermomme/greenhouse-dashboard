@@ -1,47 +1,37 @@
-var mosquitto = require('mqtt')
-var mqtt  = mosquitto.connect('mqtt://192.168.1.232', {
-  username: 'ubuntu',
-  password: '1234'
+const mosquitto = require('mqtt')
+const pg = require('pg')
+const postgres = new pg.Client({
+  connectionString: "postgresql://postgres:mvB0@postgres:5432/postgres"
 })
 
-const Influx = require('influx');
-const influx = new Influx.InfluxDB({
- host: 'influxdb',
- database: 'greenhouse_db',
- username: 'admin',
- password: 'admin',
- schema: [
-   {
-     measurement: 'greenhouse_topics',
-     fields: {
-       topic: Influx.FieldType.STRING,
-       message: Influx.FieldType.STRING,
-       value: Influx.FieldType.FLOAT
-     },
-     tags: []
-   }
- ]
-})
+async function main() {
+  try {
+    var mqtt  = mosquitto.connect(`mqtt://${process.env.MQTT_HOST}`, {
+      username: `${process.env.MQTT_USER}`,
+      password: `${process.env.MQTT_PASS}`
+    })
+    mqtt.subscribe([ '#', '$SYS/#' ])
+    await postgres.connect()
+    
+    mqtt.on('message', async function (topic, message) {
+      // console.log(`${topic}: ${message}`)
+      let payload = {}
+      try {
+        payload = JSON.parse(message)
+      } catch(error) { }
 
-const subscribedTopics = [
-  'greenhouse/temperature/+',
-  'greenhouse/humidity/+',
-  'greenhouse/moisture/soil/+'
-]
-
-mqtt.subscribe(subscribedTopics)
-
-mqtt.on('message', function (topic, message) {
-  console.log(`${topic}: ${message}`)
-  influx.writePoints([
-    {
-      measurement: 'greenhouse_topics',
-      fields: {
-        topic,
-        message,
-        value: parseFloat(message)
+      try {
+        await postgres.query({
+          text: 'INSERT INTO mqtt_messages(topic, message, payload) VALUES($1, $2, $3)',
+          values: [topic.toString(), message, payload],
+        })
+      } catch (error) {
+        console.error(error)
       }
-    }
-  ])
-  .catch((err) => console.log(err))
-})
+    })
+  } catch (error) {
+    console.error(error)
+  }
+  
+}
+main()

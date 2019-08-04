@@ -17,36 +17,53 @@ services:
       - GF_EXTERNAL_IMAGE_STORAGE_PROVIDER=local
       - GF_AUTH_PROXY_AUTO_SIGN_UP=false
       - GF_AUTH_PROXY_ENABLED=true
-
     ports:
       - "3000:3000"
     depends_on:
-      - influxdb
+      - postgres
     restart: always
 
-  influxdb:
-    image: influxdb:1.7
-    container_name: influxdb
+  postgres:
+    image: postgres
+    container_name: postgres
     networks:
-      - grafana
+      - mqtt
     ports:
-      - 8086:8086
+      - 5432:5432
     environment:
-      INFLUXDB_DB: greenhouse_db
-      INFLUXDB_ADMIN_USER: admin
-      INFLUXDB_ADMIN_PASSWORD: admin
+      POSTGRES_PASSWORD: mvB0
     volumes:
-      - ./volumes/influxdb-data:/var/lib/influxdb
+      - ./volumes/postgres-data:/var/lib/postgresql/data
+    restart: always
+
+  adminer:
+    image: adminer
+    container_name: adminer
+    networks:
+      - mqtt
+    ports:
+      - 8080:8080
+    environment:
+      ADMINER_DEFAULT_DB_HOST: postgres
+    depends_on:
+      - postgres
     restart: always
 
   mqttbridge:
     build: ./mqtt-bridge
     container_name: mqttbridge
     networks:
-      - grafana
+      - mqtt
+    environment:
+      MQTT_HOST: 192.168.1.232
+      MQTT_USER: ubuntu
+      MQTT_PASS: 1234
     depends_on:
-      - influxdb
+      - postgres
+      # - mqtt
     restart: always
+
+
   nginx-proxy:
     build: ./nginx-proxy
     container_name: nginx-proxy
@@ -59,4 +76,4 @@ services:
     restart: always
 
 networks:
-  grafana:
+  mqtt:
